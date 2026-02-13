@@ -37,23 +37,7 @@ class StudentCrudTest extends TestCase
     {
         $this->authenticateAdmin();
 
-        Student::create([
-            'student_number' => 'STU-0001',
-            'first_name' => 'Alice',
-            'last_name' => 'Reyes',
-            'program_id' => null,
-            'year_level' => 1,
-            'status' => 'active',
-        ]);
-
-        Student::create([
-            'student_number' => 'STU-0002',
-            'first_name' => 'Ben',
-            'last_name' => 'Santos',
-            'program_id' => null,
-            'year_level' => 2,
-            'status' => 'active',
-        ]);
+        Student::factory()->count(2)->create();
 
         $response = $this->getJson('/api/students');
 
@@ -66,14 +50,13 @@ class StudentCrudTest extends TestCase
     {
         $this->authenticateAdmin();
 
-        $payload = [
+        $payload = Student::factory()->make([
             'student_number' => 'STU-0003',
             'first_name' => 'Carla',
             'last_name' => 'Dela Cruz',
-            'program_id' => null,
             'year_level' => 1,
             'status' => 'active',
-        ];
+        ])->toArray();
 
         $response = $this->postJson('/api/students', $payload);
 
@@ -92,13 +75,8 @@ class StudentCrudTest extends TestCase
     {
         $this->authenticateAdmin();
 
-        $student = Student::create([
+        $student = Student::factory()->create([
             'student_number' => 'STU-0004',
-            'first_name' => 'Dina',
-            'last_name' => 'Lopez',
-            'program_id' => null,
-            'year_level' => 3,
-            'status' => 'active',
         ]);
 
         $response = $this->getJson('/api/students/'.$student->id);
@@ -112,13 +90,8 @@ class StudentCrudTest extends TestCase
     {
         $this->authenticateAdmin();
 
-        $student = Student::create([
+        $student = Student::factory()->create([
             'student_number' => 'STU-0005',
-            'first_name' => 'Eric',
-            'last_name' => 'Garcia',
-            'program_id' => null,
-            'year_level' => 4,
-            'status' => 'active',
         ]);
 
         $payload = [
@@ -143,13 +116,8 @@ class StudentCrudTest extends TestCase
     {
         $this->authenticateAdmin();
 
-        $student = Student::create([
+        $student = Student::factory()->create([
             'student_number' => 'STU-0006',
-            'first_name' => 'Faye',
-            'last_name' => 'Ibarra',
-            'program_id' => null,
-            'year_level' => 2,
-            'status' => 'active',
         ]);
 
         $response = $this->deleteJson('/api/students/'.$student->id);

@@ -2,26 +2,16 @@
 
 namespace App\Models;
 
-// File: backend/app/Models/Student.php
+// File: backend/app/Models/Enrollment.php
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Student extends Model
+class Enrollment extends Model
 {
-    use HasFactory, SoftDeletes;
-
-    /**
-     * The attributes that should be appended.
-     *
-     * @var list<string>
-     */
-    protected $appends = [
-        'full_name',
-    ];
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -29,11 +19,12 @@ class Student extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'student_number',
-        'first_name',
-        'last_name',
+        'student_id',
         'program_id',
+        'academic_year_id',
+        'semester_id',
         'year_level',
+        'total_units',
         'status',
     ];
 
@@ -46,21 +37,32 @@ class Student extends Model
     {
         return [
             'year_level' => 'integer',
+            'total_units' => 'integer',
         ];
+    }
+
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(Student::class);
     }
 
     public function program(): BelongsTo
     {
-        return $this->belongsTo('App\\Models\\Program');
+        return $this->belongsTo(Program::class);
     }
 
-    public function enrollments(): HasMany
+    public function academicYear(): BelongsTo
     {
-        return $this->hasMany(Enrollment::class);
+        return $this->belongsTo(AcademicYear::class);
     }
 
-    public function getFullNameAttribute(): string
+    public function semester(): BelongsTo
     {
-        return "{$this->first_name} {$this->last_name}";
+        return $this->belongsTo(Semester::class);
+    }
+
+    public function enrollmentSubjects(): HasMany
+    {
+        return $this->hasMany(EnrollmentSubject::class);
     }
 }
