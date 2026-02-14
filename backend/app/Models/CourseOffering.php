@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CourseOffering extends Model
 {
@@ -19,6 +20,7 @@ class CourseOffering extends Model
      */
     protected $fillable = [
         'subject_id',
+        'instructor_id',
         'academic_year_id',
         'semester_id',
         'section',
@@ -53,8 +55,18 @@ class CourseOffering extends Model
         return $this->belongsTo(AcademicYear::class);
     }
 
+    public function instructor(): BelongsTo
+    {
+        return $this->belongsTo(Instructor::class);
+    }
+
     public function semester(): BelongsTo
     {
         return $this->belongsTo(Semester::class);
+    }
+
+    public function enrollmentSubjects(): HasMany
+    {
+        return $this->hasMany(EnrollmentSubject::class);
     }
 }

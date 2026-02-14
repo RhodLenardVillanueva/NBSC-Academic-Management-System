@@ -21,6 +21,8 @@ class Semester extends Model
         'academic_year_id',
         'name',
         'is_current',
+        'add_drop_start',
+        'add_drop_end',
     ];
 
     /**
@@ -32,6 +34,8 @@ class Semester extends Model
     {
         return [
             'is_current' => 'boolean',
+            'add_drop_start' => 'date',
+            'add_drop_end' => 'date',
         ];
     }
 

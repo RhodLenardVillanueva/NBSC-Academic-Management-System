@@ -20,13 +20,13 @@ class StoreCourseOfferingRequest extends FormRequest
     {
         return [
             'subject_id' => ['required', 'integer', 'exists:subjects,id'],
+            'instructor_id' => ['required', 'integer', 'exists:instructors,id'],
             'academic_year_id' => ['required', 'integer', 'exists:academic_years,id'],
             'semester_id' => ['required', 'integer', 'exists:semesters,id'],
             'section' => ['required', 'string', 'max:20'],
             'schedule' => ['nullable', 'string'],
             'room' => ['nullable', 'string'],
             'max_slots' => ['sometimes', 'integer', 'min:1'],
-            'slots_taken' => ['sometimes', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

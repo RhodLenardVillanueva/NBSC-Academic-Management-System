@@ -13,7 +13,15 @@ class StudentController extends BaseApiController
 {
     public function index(): JsonResponse
     {
-        $students = Student::query()
+        $archived = request()->boolean('archived');
+
+        $query = Student::query();
+
+        if ($archived) {
+            $query->onlyTrashed();
+        }
+
+        $students = $query
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->paginate(20);
@@ -45,5 +53,16 @@ class StudentController extends BaseApiController
         $student->delete();
 
         return $this->success(null, 'Student deleted.');
+    }
+
+    public function restore(int $id): JsonResponse
+    {
+        $student = Student::withTrashed()->findOrFail($id);
+
+        if ($student->trashed()) {
+            $student->restore();
+        }
+
+        return $this->success($student->fresh(), 'Student restored.');
     }
 }

@@ -19,12 +19,8 @@ class UpdateEnrollmentSubjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'quiz_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'case_study_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'participation_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'major_exam_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'grade_description' => ['nullable', 'string', 'max:255'],
-            'remarks' => ['nullable', 'string', 'max:255'],
+            'enrollment_id' => ['sometimes', 'integer', 'exists:enrollments,id'],
+            'course_offering_id' => ['sometimes', 'integer', 'exists:course_offerings,id'],
         ];
     }
 }

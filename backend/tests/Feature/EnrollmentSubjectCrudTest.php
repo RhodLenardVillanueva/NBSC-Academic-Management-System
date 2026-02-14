@@ -8,6 +8,7 @@ use App\Models\AcademicYear;
 use App\Models\CourseOffering;
 use App\Models\Enrollment;
 use App\Models\EnrollmentSubject;
+use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Role;
 use App\Models\Semester;
@@ -54,6 +55,8 @@ class EnrollmentSubjectCrudTest extends TestCase
             'academic_year_id' => $academicYear->id,
             'name' => '1st Semester',
             'is_current' => true,
+            'add_drop_start' => '2026-01-01',
+            'add_drop_end' => '2026-12-31',
         ]);
         $subject = Subject::create([
             'code' => 'CS201',
@@ -64,8 +67,17 @@ class EnrollmentSubjectCrudTest extends TestCase
             'lab_hours' => 1,
             'is_active' => true,
         ]);
+        $instructor = Instructor::create([
+            'employee_number' => 'EMP-3001',
+            'first_name' => 'Elena',
+            'last_name' => 'Garcia',
+            'email' => 'elena.garcia@example.com',
+            'department' => 'Engineering',
+            'status' => 'active',
+        ]);
         $courseOffering = CourseOffering::create([
             'subject_id' => $subject->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'A',
@@ -142,12 +154,27 @@ class EnrollmentSubjectCrudTest extends TestCase
 
         [$enrollment, $courseOffering] = $this->seedDependencies();
 
-        $courseOffering->update([
-            'slots_taken' => 1,
+        EnrollmentSubject::create([
+            'enrollment_id' => $enrollment->id,
+            'course_offering_id' => $courseOffering->id,
+        ]);
+
+        $program = Program::factory()->create();
+        $student = Student::factory()->create([
+            'program_id' => $program->id,
+        ]);
+        $secondEnrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'program_id' => $program->id,
+            'academic_year_id' => $enrollment->academic_year_id,
+            'semester_id' => $enrollment->semester_id,
+            'year_level' => 2,
+            'total_units' => 0,
+            'status' => 'enrolled',
         ]);
 
         $payload = [
-            'enrollment_id' => $enrollment->id,
+            'enrollment_id' => $secondEnrollment->id,
             'course_offering_id' => $courseOffering->id,
         ];
 
@@ -166,10 +193,6 @@ class EnrollmentSubjectCrudTest extends TestCase
         $enrollmentSubject = EnrollmentSubject::create([
             'enrollment_id' => $enrollment->id,
             'course_offering_id' => $courseOffering->id,
-        ]);
-
-        $courseOffering->update([
-            'slots_taken' => 1,
         ]);
 
         $response = $this->deleteJson('/api/enrollment-subjects/'.$enrollmentSubject->id);

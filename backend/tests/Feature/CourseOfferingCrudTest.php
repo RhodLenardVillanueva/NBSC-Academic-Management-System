@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\AcademicYear;
 use App\Models\CourseOffering;
+use App\Models\Instructor;
 use App\Models\Role;
 use App\Models\Semester;
 use App\Models\Subject;
@@ -59,17 +60,27 @@ class CourseOfferingCrudTest extends TestCase
             'is_current' => true,
         ]);
 
-        return [$subject, $academicYear, $semester];
+        $instructor = Instructor::create([
+            'employee_number' => 'EMP-1001',
+            'first_name' => 'Maria',
+            'last_name' => 'Santos',
+            'email' => 'maria.santos@example.com',
+            'department' => 'Computer Science',
+            'status' => 'active',
+        ]);
+
+        return [$subject, $academicYear, $semester, $instructor];
     }
 
     public function test_can_list_course_offerings(): void
     {
         $this->authenticateAdmin();
 
-        [$subject, $academicYear, $semester] = $this->seedCourseOfferingDependencies();
+        [$subject, $academicYear, $semester, $instructor] = $this->seedCourseOfferingDependencies();
 
         CourseOffering::create([
             'subject_id' => $subject->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'A',
@@ -82,6 +93,7 @@ class CourseOfferingCrudTest extends TestCase
 
         CourseOffering::create([
             'subject_id' => $subject->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'B',
@@ -103,17 +115,17 @@ class CourseOfferingCrudTest extends TestCase
     {
         $this->authenticateAdmin();
 
-        [$subject, $academicYear, $semester] = $this->seedCourseOfferingDependencies();
+        [$subject, $academicYear, $semester, $instructor] = $this->seedCourseOfferingDependencies();
 
         $payload = [
             'subject_id' => $subject->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'C',
             'schedule' => 'MWF 1:00-2:00',
             'room' => 'Room 103',
             'max_slots' => 45,
-            'slots_taken' => 5,
             'is_active' => true,
         ];
 
@@ -133,10 +145,11 @@ class CourseOfferingCrudTest extends TestCase
     {
         $this->authenticateAdmin();
 
-        [$subject, $academicYear, $semester] = $this->seedCourseOfferingDependencies();
+        [$subject, $academicYear, $semester, $instructor] = $this->seedCourseOfferingDependencies();
 
         $courseOffering = CourseOffering::create([
             'subject_id' => $subject->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'D',
@@ -158,10 +171,11 @@ class CourseOfferingCrudTest extends TestCase
     {
         $this->authenticateAdmin();
 
-        [$subject, $academicYear, $semester] = $this->seedCourseOfferingDependencies();
+        [$subject, $academicYear, $semester, $instructor] = $this->seedCourseOfferingDependencies();
 
         $courseOffering = CourseOffering::create([
             'subject_id' => $subject->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'E',
@@ -174,19 +188,18 @@ class CourseOfferingCrudTest extends TestCase
 
         $payload = [
             'room' => 'Lab 201',
-            'slots_taken' => 20,
         ];
 
         $response = $this->putJson('/api/course-offerings/'.$courseOffering->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.slots_taken', 20);
+            ->assertJsonPath('data.slots_taken', 0);
 
         $this->assertDatabaseHas('course_offerings', [
             'id' => $courseOffering->id,
             'room' => 'Lab 201',
-            'slots_taken' => 20,
+            'slots_taken' => 0,
         ]);
     }
 
@@ -194,10 +207,11 @@ class CourseOfferingCrudTest extends TestCase
     {
         $this->authenticateAdmin();
 
-        [$subject, $academicYear, $semester] = $this->seedCourseOfferingDependencies();
+        [$subject, $academicYear, $semester, $instructor] = $this->seedCourseOfferingDependencies();
 
         $courseOffering = CourseOffering::create([
             'subject_id' => $subject->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'F',

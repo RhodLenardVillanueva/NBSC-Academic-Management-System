@@ -6,8 +6,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Enrollment\StoreEnrollmentRequest;
 use App\Http\Requests\Enrollment\UpdateEnrollmentRequest;
+use App\Models\Assessment;
 use App\Models\Enrollment;
 use App\Models\EnrollmentSubject;
+use App\Services\AssessmentService;
 use Illuminate\Http\JsonResponse;
 
 class EnrollmentController extends BaseApiController
@@ -47,31 +49,46 @@ class EnrollmentController extends BaseApiController
         return $this->success(null, 'Enrollment deleted.');
     }
 
-    public function cor(Enrollment $enrollment): JsonResponse
+    public function cor(Enrollment $enrollment, AssessmentService $assessmentService): JsonResponse
     {
         $enrollment->load(['student', 'program', 'academicYear', 'semester']);
 
         $enrollmentSubjects = EnrollmentSubject::query()
-            ->with('courseOffering.subject')
+            ->with(['courseOffering.subject', 'courseOffering.instructor'])
             ->where('enrollment_id', $enrollment->id)
             ->get();
 
         $subjects = $enrollmentSubjects->map(function (EnrollmentSubject $enrollmentSubject): array {
             $courseOffering = $enrollmentSubject->courseOffering;
             $subject = $courseOffering?->subject;
+            $instructor = $courseOffering?->instructor;
 
             return [
+                'enrollment_subject_id' => $enrollmentSubject->id,
+                'course_offering_id' => $courseOffering?->id,
                 'subject_code' => $subject?->code,
                 'subject_title' => $subject?->title,
                 'units' => $subject?->units,
                 'section' => $courseOffering?->section,
                 'schedule' => $courseOffering?->schedule,
                 'room' => $courseOffering?->room,
+                'faculty' => $instructor?->full_name,
             ];
         })->values();
 
+        $assessment = Assessment::query()
+            ->with(['installments.payments', 'adjustments'])
+            ->where('enrollment_id', $enrollment->id)
+            ->first();
+
         return $this->success([
             'enrollment_id' => $enrollment->id,
+            'enrollment' => [
+                'id' => $enrollment->id,
+                'year_level' => $enrollment->year_level,
+                'status' => $enrollment->status,
+                'total_units' => $enrollment->total_units,
+            ],
             'student' => [
                 'id' => $enrollment->student?->id,
                 'student_number' => $enrollment->student?->student_number,
@@ -92,6 +109,9 @@ class EnrollmentController extends BaseApiController
             ],
             'subjects' => $subjects,
             'total_units' => $enrollment->total_units,
+            'assessment' => $assessment
+                ? $assessmentService->buildAssessmentPayload($assessment)
+                : null,
         ], 'COR retrieved.');
     }
 }

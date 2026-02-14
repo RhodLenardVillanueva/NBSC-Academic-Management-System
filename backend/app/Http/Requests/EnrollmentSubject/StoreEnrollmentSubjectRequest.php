@@ -23,10 +23,6 @@ class StoreEnrollmentSubjectRequest extends FormRequest
         return [
             'enrollment_id' => ['required', 'integer', 'exists:enrollments,id'],
             'course_offering_id' => ['required', 'integer', 'exists:course_offerings,id'],
-            'quiz_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'case_study_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'participation_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'major_exam_score' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'unique_enrollment_subject' => [
                 Rule::unique('enrollment_subjects', 'enrollment_id')
                     ->where(fn ($query) => $query->where('course_offering_id', $this->input('course_offering_id'))),
@@ -45,7 +41,13 @@ class StoreEnrollmentSubjectRequest extends FormRequest
 
             $courseOffering = CourseOffering::find($courseOfferingId);
 
-            if ($courseOffering && $courseOffering->slots_taken >= $courseOffering->max_slots) {
+            if (! $courseOffering) {
+                return;
+            }
+
+            $currentCount = $courseOffering->enrollmentSubjects()->count();
+
+            if ($currentCount >= $courseOffering->max_slots) {
                 $validator->errors()->add('course_offering_id', 'Course offering is full.');
             }
         });

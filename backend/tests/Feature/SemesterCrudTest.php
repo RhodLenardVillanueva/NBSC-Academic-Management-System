@@ -75,6 +75,8 @@ class SemesterCrudTest extends TestCase
             'academic_year_id' => $academicYear->id,
             'name' => '1st Semester',
             'is_current' => true,
+            'add_drop_start' => '2026-06-01',
+            'add_drop_end' => '2026-06-15',
         ];
 
         $response = $this->postJson('/api/semesters', $payload);

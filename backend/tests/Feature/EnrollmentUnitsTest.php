@@ -8,6 +8,7 @@ use App\Models\AcademicYear;
 use App\Models\CourseOffering;
 use App\Models\Enrollment;
 use App\Models\EnrollmentSubject;
+use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Role;
 use App\Models\Semester;
@@ -76,8 +77,18 @@ class EnrollmentUnitsTest extends TestCase
             'is_active' => true,
         ]);
 
+        $instructor = Instructor::create([
+            'employee_number' => 'EMP-4001',
+            'first_name' => 'Marco',
+            'last_name' => 'Villanueva',
+            'email' => 'marco.villanueva@example.com',
+            'department' => 'Computer Engineering',
+            'status' => 'active',
+        ]);
+
         $courseOfferingA = CourseOffering::create([
             'subject_id' => $subjectA->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'A',
@@ -90,6 +101,7 @@ class EnrollmentUnitsTest extends TestCase
 
         $courseOfferingB = CourseOffering::create([
             'subject_id' => $subjectB->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'B',

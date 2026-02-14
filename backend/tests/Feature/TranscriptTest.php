@@ -8,6 +8,7 @@ use App\Models\AcademicYear;
 use App\Models\CourseOffering;
 use App\Models\Enrollment;
 use App\Models\EnrollmentSubject;
+use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Role;
 use App\Models\Semester;
@@ -128,8 +129,18 @@ class TranscriptTest extends TestCase
             'is_active' => true,
         ]);
 
+        $instructor = Instructor::create([
+            'employee_number' => 'EMP-6001',
+            'first_name' => 'Andrea',
+            'last_name' => 'Flores',
+            'email' => 'andrea.flores@example.com',
+            'department' => 'Information Systems',
+            'status' => 'active',
+        ]);
+
         $offeringA = CourseOffering::create([
             'subject_id' => $subjectA->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semesterOne->id,
             'section' => 'A',
@@ -142,6 +153,7 @@ class TranscriptTest extends TestCase
 
         $offeringB = CourseOffering::create([
             'subject_id' => $subjectB->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semesterOne->id,
             'section' => 'B',
@@ -154,6 +166,7 @@ class TranscriptTest extends TestCase
 
         $offeringC = CourseOffering::create([
             'subject_id' => $subjectC->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semesterTwo->id,
             'section' => 'A',
@@ -166,6 +179,7 @@ class TranscriptTest extends TestCase
 
         $offeringD = CourseOffering::create([
             'subject_id' => $subjectD->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semesterTwo->id,
             'section' => 'B',
@@ -199,37 +213,37 @@ class TranscriptTest extends TestCase
         EnrollmentSubject::create([
             'enrollment_id' => $enrollmentOne->id,
             'course_offering_id' => $offeringA->id,
-            'quiz_score' => 90,
-            'case_study_score' => 90,
-            'participation_score' => 90,
-            'major_exam_score' => 90,
+            'quizzes' => 90,
+            'projects' => 90,
+            'participation' => 90,
+            'major_exams' => 90,
         ]);
 
         EnrollmentSubject::create([
             'enrollment_id' => $enrollmentOne->id,
             'course_offering_id' => $offeringB->id,
-            'quiz_score' => 95,
-            'case_study_score' => 95,
-            'participation_score' => 95,
-            'major_exam_score' => 95,
+            'quizzes' => 95,
+            'projects' => 95,
+            'participation' => 95,
+            'major_exams' => 95,
         ]);
 
         EnrollmentSubject::create([
             'enrollment_id' => $enrollmentTwo->id,
             'course_offering_id' => $offeringC->id,
-            'quiz_score' => 88,
-            'case_study_score' => 88,
-            'participation_score' => 88,
-            'major_exam_score' => 88,
+            'quizzes' => 88,
+            'projects' => 88,
+            'participation' => 88,
+            'major_exams' => 88,
         ]);
 
         EnrollmentSubject::create([
             'enrollment_id' => $enrollmentTwo->id,
             'course_offering_id' => $offeringD->id,
-            'quiz_score' => 86,
-            'case_study_score' => 86,
-            'participation_score' => 86,
-            'major_exam_score' => 86,
+            'quizzes' => 86,
+            'projects' => 86,
+            'participation' => 86,
+            'major_exams' => 86,
         ]);
 
         $response = $this->getJson('/api/students/'.$student->id.'/transcript');
@@ -256,7 +270,7 @@ class TranscriptTest extends TestCase
 
         $this->assertEqualsWithDelta(90.0, $semesterOneSubjects['CS601']['percentage'], 0.01);
         $this->assertEqualsWithDelta(3.25, $semesterOneSubjects['CS601']['equivalent_grade'], 0.01);
-        $this->assertSame('PASSED', $semesterOneSubjects['CS601']['remarks']);
+        $this->assertSame('Passed', $semesterOneSubjects['CS601']['remarks']);
 
         $this->assertEqualsWithDelta(95.0, $semesterOneSubjects['CS602']['percentage'], 0.01);
         $this->assertEqualsWithDelta(3.75, $semesterOneSubjects['CS602']['equivalent_grade'], 0.01);

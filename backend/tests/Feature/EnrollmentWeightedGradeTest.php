@@ -8,6 +8,7 @@ use App\Models\AcademicYear;
 use App\Models\CourseOffering;
 use App\Models\Enrollment;
 use App\Models\EnrollmentSubject;
+use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Role;
 use App\Models\Semester;
@@ -86,8 +87,18 @@ class EnrollmentWeightedGradeTest extends TestCase
             'is_active' => true,
         ]);
 
+        $instructor = Instructor::create([
+            'employee_number' => 'EMP-5001',
+            'first_name' => 'Sofia',
+            'last_name' => 'Cruz',
+            'email' => 'sofia.cruz@example.com',
+            'department' => 'Software Engineering',
+            'status' => 'active',
+        ]);
+
         $courseOfferingA = CourseOffering::create([
             'subject_id' => $subjectA->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'A',
@@ -100,6 +111,7 @@ class EnrollmentWeightedGradeTest extends TestCase
 
         $courseOfferingB = CourseOffering::create([
             'subject_id' => $subjectB->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'B',
@@ -112,6 +124,7 @@ class EnrollmentWeightedGradeTest extends TestCase
 
         $courseOfferingC = CourseOffering::create([
             'subject_id' => $subjectC->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'C',
@@ -144,49 +157,46 @@ class EnrollmentWeightedGradeTest extends TestCase
         $first = EnrollmentSubject::create([
             'enrollment_id' => $enrollment->id,
             'course_offering_id' => $courseOfferingA->id,
-            'quiz_score' => 90,
-            'case_study_score' => 90,
-            'participation_score' => 90,
-            'major_exam_score' => 90,
+            'quizzes' => 90,
+            'projects' => 90,
+            'participation' => 90,
+            'major_exams' => 90,
         ]);
 
         $first->refresh();
 
         $this->assertSame('90.00', $first->final_numeric_grade);
-        $this->assertSame('3.25', $first->equivalent_grade);
-        $this->assertSame('3.25', $first->grade_description);
-        $this->assertSame('PASSED', $first->remarks);
+        $this->assertSame('3.25', $first->grade_point);
+        $this->assertSame('Passed', $first->remarks);
 
         $second = EnrollmentSubject::create([
             'enrollment_id' => $enrollment->id,
             'course_offering_id' => $courseOfferingB->id,
-            'quiz_score' => 60,
-            'case_study_score' => 60,
-            'participation_score' => 60,
-            'major_exam_score' => 60,
+            'quizzes' => 60,
+            'projects' => 60,
+            'participation' => 60,
+            'major_exams' => 60,
         ]);
 
         $second->refresh();
 
         $this->assertSame('60.00', $second->final_numeric_grade);
-        $this->assertSame('0.00', $second->equivalent_grade);
-        $this->assertSame('0.00', $second->grade_description);
-        $this->assertSame('FAILED', $second->remarks);
+        $this->assertSame('0.00', $second->grade_point);
+        $this->assertSame('Failed', $second->remarks);
 
         $inc = EnrollmentSubject::create([
             'enrollment_id' => $enrollment->id,
             'course_offering_id' => $courseOfferingC->id,
-            'quiz_score' => 85,
-            'case_study_score' => 85,
-            'participation_score' => 85,
-            'major_exam_score' => null,
+            'quizzes' => 85,
+            'projects' => 85,
+            'participation' => 85,
+            'major_exams' => null,
         ]);
 
         $inc->refresh();
 
         $this->assertNull($inc->final_numeric_grade);
-        $this->assertNull($inc->equivalent_grade);
-        $this->assertNull($inc->grade_description);
-        $this->assertSame('INC', $inc->remarks);
+        $this->assertNull($inc->grade_point);
+        $this->assertNull($inc->remarks);
     }
 }

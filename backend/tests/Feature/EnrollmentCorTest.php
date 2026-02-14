@@ -5,9 +5,11 @@ namespace Tests\Feature;
 // File: backend/tests/Feature/EnrollmentCorTest.php
 
 use App\Models\AcademicYear;
+use App\Models\Assessment;
 use App\Models\CourseOffering;
 use App\Models\Enrollment;
 use App\Models\EnrollmentSubject;
+use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Role;
 use App\Models\Semester;
@@ -66,6 +68,15 @@ class EnrollmentCorTest extends TestCase
             'is_current' => true,
         ]);
 
+        $instructor = Instructor::create([
+            'employee_number' => 'EMP-2001',
+            'first_name' => 'Carlos',
+            'last_name' => 'Reyes',
+            'email' => 'carlos.reyes@example.com',
+            'department' => 'Information Technology',
+            'status' => 'active',
+        ]);
+
         $subjectA = Subject::create([
             'code' => 'CS401',
             'title' => 'Software Engineering',
@@ -88,6 +99,7 @@ class EnrollmentCorTest extends TestCase
 
         $courseOfferingA = CourseOffering::create([
             'subject_id' => $subjectA->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'A',
@@ -100,6 +112,7 @@ class EnrollmentCorTest extends TestCase
 
         $courseOfferingB = CourseOffering::create([
             'subject_id' => $subjectB->id,
+            'instructor_id' => $instructor->id,
             'academic_year_id' => $academicYear->id,
             'semester_id' => $semester->id,
             'section' => 'B',
@@ -120,6 +133,15 @@ class EnrollmentCorTest extends TestCase
             'status' => 'enrolled',
         ]);
 
+        Assessment::create([
+            'enrollment_id' => $enrollment->id,
+            'tuition_amount' => 15000,
+            'miscellaneous_amount' => 1500,
+            'other_fees_amount' => 500,
+            'discount_amount' => 1000,
+            'total_amount' => 16000,
+        ]);
+
         EnrollmentSubject::create([
             'enrollment_id' => $enrollment->id,
             'course_offering_id' => $courseOfferingA->id,
@@ -136,6 +158,7 @@ class EnrollmentCorTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.enrollment_id', $enrollment->id)
             ->assertJsonCount(2, 'data.subjects')
-            ->assertJsonPath('data.total_units', 7);
+            ->assertJsonPath('data.total_units', 7)
+            ->assertJsonPath('data.assessment.total', '16000.00');
     }
 }

@@ -20,13 +20,13 @@ class UpdateCourseOfferingRequest extends FormRequest
     {
         return [
             'subject_id' => ['sometimes', 'integer', 'exists:subjects,id'],
+            'instructor_id' => ['sometimes', 'integer', 'exists:instructors,id'],
             'academic_year_id' => ['sometimes', 'integer', 'exists:academic_years,id'],
             'semester_id' => ['sometimes', 'integer', 'exists:semesters,id'],
             'section' => ['sometimes', 'string', 'max:20'],
             'schedule' => ['nullable', 'string'],
             'room' => ['nullable', 'string'],
             'max_slots' => ['sometimes', 'integer', 'min:1'],
-            'slots_taken' => ['sometimes', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

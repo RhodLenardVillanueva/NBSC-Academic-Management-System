@@ -22,6 +22,8 @@ class UpdateSemesterRequest extends FormRequest
             'academic_year_id' => ['sometimes', 'integer', 'exists:academic_years,id'],
             'name' => ['sometimes', 'string', 'max:50'],
             'is_current' => ['sometimes', 'boolean'],
+            'add_drop_start' => ['sometimes', 'date', 'required_with:add_drop_end'],
+            'add_drop_end' => ['sometimes', 'date', 'required_with:add_drop_start', 'after_or_equal:add_drop_start'],
         ];
     }
 }

@@ -56,8 +56,8 @@ class TranscriptController extends BaseApiController
                     ? round((float) $enrollmentSubject->final_numeric_grade, 2)
                     : null;
 
-                $equivalent = $percentage !== null
-                    ? round(self::mapEquivalentGrade($percentage), 2)
+                $equivalent = $enrollmentSubject->grade_point !== null
+                    ? round((float) $enrollmentSubject->grade_point, 2)
                     : null;
 
                 if ($equivalent !== null && $unitsValue > 0) {
@@ -112,62 +112,5 @@ class TranscriptController extends BaseApiController
             'semesters' => $semesters,
             'cumulative_gwa' => $cumulativeGwa,
         ], 'Transcript retrieved.');
-    }
-
-    private static function mapEquivalentGrade(float $finalNumeric): float
-    {
-        if ($finalNumeric >= 97) {
-            return 4.0;
-        }
-
-        if ($finalNumeric >= 95) {
-            return 3.75;
-        }
-
-        if ($finalNumeric >= 92) {
-            return 3.5;
-        }
-
-        if ($finalNumeric >= 90) {
-            return 3.25;
-        }
-
-        if ($finalNumeric >= 88) {
-            return 3.0;
-        }
-
-        if ($finalNumeric >= 86) {
-            return 2.75;
-        }
-
-        if ($finalNumeric >= 83) {
-            return 2.5;
-        }
-
-        if ($finalNumeric >= 81) {
-            return 2.25;
-        }
-
-        if ($finalNumeric >= 79) {
-            return 2.0;
-        }
-
-        if ($finalNumeric >= 77) {
-            return 1.75;
-        }
-
-        if ($finalNumeric >= 74) {
-            return 1.5;
-        }
-
-        if ($finalNumeric >= 71) {
-            return 1.25;
-        }
-
-        if ($finalNumeric >= 70) {
-            return 1.0;
-        }
-
-        return 0.0;
     }
 }
